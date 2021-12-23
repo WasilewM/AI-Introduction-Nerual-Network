@@ -8,11 +8,17 @@ class NeuralNetwork:
         self.hidden_neurons_num = hidden_neurons
         self.output_neurons_num = output_neurons
         self.input_weights = [
-            [0.1] * self.input_neurons_num
+            [
+                np.random.uniform(0, 1)
+                for _ in range(self.input_neurons_num)
+            ]
             for _ in range(self.hidden_neurons_num)
         ]
         self.output_weights = [
-            [0.1] * self.output_neurons_num
+            [
+                np.random.uniform(0, 1)
+                for _ in range(self.output_neurons_num)
+            ]
             for _ in range(self.hidden_neurons_num)
         ]
         self.learning_rate = 0.1
@@ -52,7 +58,7 @@ class NeuralNetwork:
             for error, output in zip(self.errors, self.output_neurons_val)
         ]
         for i in range(self.output_neurons_num):
-            self.output_weights[i] += self.learning_rate * np.dot(
+            self.output_weights[i] += -self.learning_rate * np.dot(
                 self.output_neurons_val[i], delta[i]
             )
 
@@ -62,7 +68,7 @@ class NeuralNetwork:
             for error, output in zip(self.errors, self.hidden_neurons_val)
         ]
         for i in range(self.input_neurons_num):
-            self.input_weights[i] += self.learning_rate * np.dot(
+            self.input_weights[i] += -self.learning_rate * np.dot(
                 self.hidden_neurons_val[i], delta[i]
             )
 
