@@ -1,94 +1,94 @@
-# import pandas as pd
 import numpy as np
 
 
 class NeuralNetwork:
-    def __init__(self, input_neurons=11, hidden_neurons=11, output_neurons=11):
-        self.input_neurons_num = input_neurons
-        self.hidden_neurons_num = hidden_neurons
-        self.output_neurons_num = output_neurons
-        self.input_weights = [
-            [
-                np.random.uniform(0, 1)
-                for _ in range(self.input_neurons_num)
-            ]
-            for _ in range(self.hidden_neurons_num)
-        ]
-        self.output_weights = [
-            [
-                np.random.uniform(0, 1)
-                for _ in range(self.output_neurons_num)
-            ]
-            for _ in range(self.hidden_neurons_num)
-        ]
-        self.learning_rate = 0.1
+    def __init__(
+        self,
+        input_neurons=11,
+        hidden_neurons=11,
+        output_neurons=11,
+        learning_rate=0.1
+    ):
+        self._input_neurons_num = input_neurons
+        self._hidden_neurons_num = hidden_neurons
+        self._output_neurons_num = output_neurons
+        self._init_params()
+        self._alpha = learning_rate
+        self.error = []
+
+    def _init_params(self):
+        # init params for hidden layer
+        self._w1 = np.random.randn(
+            self._hidden_neurons_num, self._input_neurons_num
+        )
+        self._b1 = np.random.randn(self._hidden_neurons_num, 1)
+        # init pramas for output layer
+        self._w2 = np.random.randn(
+            self._output_neurons_num, self._hidden_neurons_num
+        )
+        self._b2 = np.random.randn(self._output_neurons_num, 1)
 
     def sigmoid(self, x, deriv=False):
         if deriv is True:
             return self.sigmoid(x) * (1 - self.sigmoid(x))
         return 1 / (1 + np.exp(-x))
 
-    def calculations_in_hidden_layer(self, input):
-        self.hidden_neurons_val = self.sigmoid(
-            np.dot(input, self.input_weights)
+    def softmax(self, z):
+        return np.exp(z) / np.sum(np.exp(z))
+
+    def forward_propagation(self, x):
+        self._z1 = self._w1.dot(x) + self._b1
+        self._a1 = self.sigmoid(self._z1)
+        self._z2 = self._w2.dot(self._a1) + self._b2
+        self._a2 = self.softmax(self._z2)
+
+    def get_cost(self, y):
+        cost = np.zeros((y.size, self._output_neurons_num))
+        cost[np.arange(y.size), y] = 1
+        return cost.T
+
+    def get_mean_square_error(self, cost):
+        current_epoch_error = np.square(self._dz2).mean()
+        # print("error:", current_epoch_error)
+        self.error.append(current_epoch_error)
+
+    def back_propagation(self, x, y):
+        m = y.size
+        cost = self.get_cost(y)
+        self._dz2 = self._a2 - cost
+        self.get_mean_square_error(cost)
+        self._dw2 = 1 / m * self._dz2.dot(self._a1.T)
+        self._db2 = 1 / m * np.sum(self._dz2)
+        self._dz1 = self._w2.T.dot(self._dz2) * self.sigmoid(
+            self._z1, deriv=True
         )
+        self._dw1 = 1 / m * self._dz1.dot(x.T)
+        self._db1 = 1 / m * np.sum(self._dz1)
 
-    def calculations_in_output_neurons(self):
-        self.output_neurons_val = self.sigmoid(
-            np.dot(self.hidden_neurons_val, self.output_weights)
-        )
+    def update_weights(self):
+        self._w1 -= self._alpha * self._dw1
+        self._b1 -= self._alpha * self._db1
+        self._w2 -= self._alpha * self._dw2
+        self._b2 -= self._alpha * self._db2
 
-    def get_mean_square_errors(self, expected_class):
-        self.expected_output = [0] * self.output_neurons_num
-        self.expected_output[int(expected_class)] = 1
-        # self.expected_output = np.asarray(self.expected_output)
-        self.errors = [
-            # 0.5 * (output - error) ** 2
-            output - error
-            for output, error in zip(
-                self.output_neurons_val, self.expected_output
-            )
-        ]
-        self.errors = np.asarray(self.errors)
+    def train(self, x, y, epochs=1000):
+        for i in range(epochs):
+            self.forward_propagation(x)
+            self.back_propagation(x, y)
+            self.update_weights()
 
-    def back_propagation(self):
-        # back propagation from output layer to hidden layer
-        delta = [
-            error * self.sigmoid(output, True)
-            for error, output in zip(self.errors, self.output_neurons_val)
-        ]
-        for i in range(self.output_neurons_num):
-            self.output_weights[i] += -self.learning_rate * np.dot(
-                self.output_neurons_val[i], delta[i]
-            )
+            if i % 50 == 0:
+                print("Iteration: ", i)
+                print("Accuracy: ", self.get_accuracy(
+                    self.get_predictions(), y
+                ))
 
-        # back propagation from hidden layer to input layer
-        delta = [
-            error * self.sigmoid(output, True)
-            for error, output in zip(self.errors, self.hidden_neurons_val)
-        ]
-        for i in range(self.input_neurons_num):
-            self.input_weights[i] += -self.learning_rate * np.dot(
-                self.hidden_neurons_val[i], delta[i]
-            )
+    def get_predictions(self):
+        return np.argmax(self._a2, 0)
 
-    def train(self, training_data, epochs=1):
-        for _ in range(epochs):
-            for row in training_data:
-                # do not use class value for calculations
-                class_value = row[-1]
-                values = row[:-1]
-                self.calculations_in_hidden_layer(values)
-                self.calculations_in_output_neurons()
-                self.get_mean_square_errors(class_value)
-                self.back_propagation()
+    def get_accuracy(self, predictions, y):
+        print(predictions, y)
+        return np.sum(predictions == y) / y.size
 
-    def predict(self, sample_data):
-        self.calculations_in_hidden_layer(sample_data)
-        self.calculations_in_output_neurons()
-        max_value = max(self.output_neurons_val)
-        predicted_class = 0
-        for output in self.output_neurons_val:
-            if output == max_value:
-                return predicted_class
-            predicted_class += 1
+    def test_perormance(self, sample_data):
+        pass
