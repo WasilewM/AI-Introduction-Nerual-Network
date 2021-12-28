@@ -1,3 +1,4 @@
+from os import error
 import numpy as np
 
 
@@ -43,20 +44,21 @@ class NeuralNetwork:
         self._a2 = self.softmax(self._z2)
 
     def get_cost(self, y):
-        cost = np.zeros((y.size, self._output_neurons_num))
-        cost[np.arange(y.size), y] = 1
-        return cost.T
+        self._cost = np.zeros((y.size, self._output_neurons_num))
+        self._cost[np.arange(y.size), y] = 1
+        self._cost = self._cost.T
+        # return cost.T
 
-    def get_mean_square_error(self, cost):
+    def get_mean_square_error(self):
         current_epoch_error = np.square(self._dz2).mean()
         # print("error:", current_epoch_error)
         self.error.append(current_epoch_error)
 
     def back_propagation(self, x, y):
         m = y.size
-        cost = self.get_cost(y)
-        self._dz2 = self._a2 - cost
-        self.get_mean_square_error(cost)
+        self.get_cost(y)
+        self._dz2 = self._a2 - self._cost
+        # self.get_mean_square_error()
         self._dw2 = 1 / m * self._dz2.dot(self._a1.T)
         self._db2 = 1 / m * np.sum(self._dz2)
         self._dz1 = self._w2.T.dot(self._dz2) * self.sigmoid(
@@ -71,17 +73,22 @@ class NeuralNetwork:
         self._w2 -= self._alpha * self._dw2
         self._b2 -= self._alpha * self._db2
 
-    def train(self, x, y, epochs=1000):
+    def train(self, x, y, epochs=100):
         for i in range(epochs):
-            self.forward_propagation(x)
-            self.back_propagation(x, y)
-            self.update_weights()
+            _, samples_num = x.shape
+            for idx in range(0, samples_num-1):
+                curr_x = x[:, idx:idx+1]
+                curr_y = y[idx]
+                self.forward_propagation(curr_x)
+                self.back_propagation(curr_x, curr_y)
+                self.update_weights()
 
-            if i % 50 == 0:
-                print("Iteration: ", i)
-                print("Accuracy: ", self.get_accuracy(
-                    self.get_predictions(), y
-                ))
+                if idx == samples_num - 2:
+                    print("Epoch: ", i)
+                    print("Accuracy: ", self.get_accuracy(
+                        self.get_predictions(), y
+                    ))
+                    self.get_mean_square_error()
 
     def get_predictions(self):
         return np.argmax(self._a2, 0)

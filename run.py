@@ -40,6 +40,8 @@ def run(
     y_train = np.array(y_train)
     x_train = data_train[0:columns_num-1]
 
+    # print(x_train[:, 0:1])
+
     nn = NeuralNetwork(
         input_neurons_num,
         hidden_neurons_num,
