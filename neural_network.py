@@ -12,6 +12,7 @@ class NeuralNetwork:
         s = 1 / np.sqrt(input_l_c)
         self._w1 = np.random.uniform(-s, s, size=(hidden_l_c, input_l_c))
         self._w2 = np.zeros((output_l_c, hidden_l_c))
+        self._error = []
 
     def forward_propagation(self, x):
         self._z1 = self._w1 @ x
@@ -30,19 +31,27 @@ class NeuralNetwork:
         self._w1 = self._w1 - self._lr * dw1
         self._w2 = self._w2 - self._lr * dw2
 
-    def train(self, training_df, epochs):
+        self._last_err = np.square(dz2).mean()
+
+    def train(self, training_df, epochs, batch_size=3):
         x = training_df.iloc[:, :-1].to_numpy().T
         y_raw = training_df.iloc[:, -1].to_numpy().T
         y = encode_y(y_raw, self._w2.shape[0])
+        batches = x.T.shape[0] // batch_size
         for _ in range(epochs):
-            self.forward_propagation(x)
-            self.backward_propagation(x, y)
+            for xs, ys in zip(np.array_split(x.T, batches), np.array_split(y.T, batches)):
+                self.forward_propagation(xs.T)
+                self.backward_propagation(xs.T, ys.T)
+            self._error.append(self._last_err)
 
     def predict(self, row):
         self.forward_propagation(row)
         p_category = np.argmax(self._a2, 0)
         p_probability = self._a2[p_category]
         return p_category, p_probability
+
+    def get_error(self):
+        return self._error
 
 
 def sigmoid(x, derivative=False):
