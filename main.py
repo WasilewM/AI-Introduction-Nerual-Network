@@ -6,7 +6,7 @@ from get_data import get_data
 from neural_network import NeuralNetwork, get_accuracy
 
 
-def plot_error(nn):
+def plot_error(nn: NeuralNetwork):
     """
     Function plots the chart of the error of the Neural Network at the end of
     each learning epoch.

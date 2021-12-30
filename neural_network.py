@@ -31,10 +31,10 @@ class NeuralNetwork:
 
     def forward_propagation(self, x):
         """
-        Function propagates the values forward to next Nerual Network layers.
+        Function propagates the values forward to next Neural Network layers.
 
         param x: represents input layer values
-        type x: numpy.array
+        type x: numpy.ndarray
         """
         # propagate values to hidden layer
         self._z1 = self._w1 @ x
@@ -49,10 +49,10 @@ class NeuralNetwork:
         layer of the Neural Network
 
         param x:
-        type x: numpy.array
+        type x: numpy.ndarray
 
         param y:
-        type y: numpy.array
+        type y: numpy.ndarray
         """
         m = x.shape[1]
         dz2 = self._a2 - y
@@ -76,8 +76,8 @@ class NeuralNetwork:
         param epochs: represents the number of epochs of the training process
         type epochs: int
 
-        param batch_size: represents the number of data sample that shoulbe
-            taken into simgle batch, default value equals 3
+        param batch_size: represents the number of data sample that should be
+            taken into single batch, default value equals 3
         type batch_size: int
         """
         x = training_df.iloc[:, :-1].to_numpy().T
@@ -85,7 +85,10 @@ class NeuralNetwork:
         y = encode_y(y_raw, self._w2.shape[0])
         batches = x.T.shape[0] // batch_size
         for _ in range(epochs):
-            for xs, ys in zip(np.array_split(x.T, batches), np.array_split(y.T, batches)):
+            for xs, ys in zip(
+                np.array_split(x.T, batches),
+                np.array_split(y.T, batches)
+            ):
                 self.forward_propagation(xs.T)
                 self.backward_propagation(xs.T, ys.T)
             self._error.append(self._last_err)
@@ -95,7 +98,7 @@ class NeuralNetwork:
         Function predicts the class of the data sample.
 
         param row: represents data sample
-        type row: numpy.array
+        type row: numpy.ndarray
         """
         self.forward_propagation(row)
         p_category = np.argmax(self._a2, 0)
@@ -113,8 +116,8 @@ def sigmoid(x, derivative=False):
     """
     Returns the value of the sigmoid function or its derivative ... .
 
-    param x: represents the miniabatch?
-    type x: numpy.array
+    param x: represents the minibatch?
+    type x: numpy.ndarray
 
     param derivative: answers the question if the derivative of the sigmoid
         function should be returned, default value equals False
@@ -132,7 +135,7 @@ def softmax(x):
         for all samples in the minibatch.
 
     param x: array representing minibatch
-    type x: numpy.array
+    type x: numpy.ndarray
     """
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)
@@ -140,11 +143,11 @@ def softmax(x):
 
 def encode_y(y, bits):
     """
-    Encodes correct answers of the minibatch. Transofrmes values in y array
+    Encodes correct answers of the minibatch. Transformes values in y array
         from int in range (0,bits) to 0s and 1s, where 1 is the correct answer.
 
     param y: represent correct answers of the minibatch
-    type y: numpy.array
+    type y: numpy.ndarray
 
     param bits: represents the number? of output layer neurons - determines
         the answer
