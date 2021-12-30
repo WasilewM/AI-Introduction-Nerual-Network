@@ -27,9 +27,9 @@ def run(
 
     # split data
     # test data
-    # data_test = data[0:500].T
-    # y_test = data_test[columns_num-1]
-    # x_test = data_test[0:columns_num-1]
+    data_test = data[0:500].T
+    y_test = data_test[columns_num-1]
+    x_test = data_test[0:columns_num-1]
     # training data
     data_train = data[500:].T
     y_train_float = data_train[columns_num-1]
@@ -50,6 +50,7 @@ def run(
     )
     nn.train(x_train, y_train)
     plot_error_chart(nn)
+    print(nn.test_performance(x_test, y_test))
 
 
 if __name__ == "__main__":
