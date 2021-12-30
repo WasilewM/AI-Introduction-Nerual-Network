@@ -1,12 +1,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+# import pandas as pd
 
 from get_data import get_data
 from neural_network import NeuralNetwork, get_accuracy
 
 
 def plot_error(nn):
+    """
+    Function plots the chart of the error of the Neural Network at the end of
+    each learning epoch.
+
+    param nn: neural network instance
+    type nn: Neural Network
+    """
     error = nn.get_error()
     y_values = error
     x_values = range(1, len(error)+1)
@@ -19,6 +26,9 @@ def plot_error(nn):
 
 
 def main():
+    """
+    Main function f the simulation.
+    """
     np.random.seed(0)
 
     # Hiperparameters
