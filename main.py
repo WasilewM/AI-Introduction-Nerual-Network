@@ -71,7 +71,7 @@ def main():
     #
     # Hiperparameters (Red Wine)
     #
-    learning_rates = [0.0001, 0.0005, 0.006, 0.0105, 0.1, 0.5]
+    learning_rates = [0.0001, 0.0005, 0.006, 0.0105, 0.08, 0.2]
     hidden_layer = 11
     epochs = 800
     minibatch_size = 8
@@ -90,6 +90,7 @@ def main():
     stats_combined = []
 
     for lr in learning_rates:
+        np.random.seed(0)
         nn = NeuralNetwork(input_layer, hidden_layer, output_layer, lr)
         nn.train(training_df, epochs, minibatch_size)
         accuracy = get_accuracy(nn, test_df)
