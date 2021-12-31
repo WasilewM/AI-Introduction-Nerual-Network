@@ -48,10 +48,10 @@ class NeuralNetwork:
         Function propagates the values backwards - from output layer to input
         layer of the Neural Network
 
-        param x:
+        param x: represents the minibatch
         type x: numpy.ndarray
 
-        param y:
+        param y: represents the correct results for the minibatch
         type y: numpy.ndarray
         """
         m = x.shape[1]
@@ -114,9 +114,9 @@ class NeuralNetwork:
 
 def sigmoid(x, derivative=False):
     """
-    Returns the value of the sigmoid function or its derivative ... .
+    Returns the value of the sigmoid function or its derivative.
 
-    param x: represents the minibatch?
+    param x: array given to perform mathematical operations
     type x: numpy.ndarray
 
     param derivative: answers the question if the derivative of the sigmoid

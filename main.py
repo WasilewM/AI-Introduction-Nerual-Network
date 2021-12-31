@@ -16,7 +16,7 @@ def plot_error(nn: NeuralNetwork, title: str, filename: str):
     type nn: NeuralNetwork
 
     param filename: path where plot will be saved
-    type filename: str 
+    type filename: str
     """
     error = nn.get_error()
     y_values = error
@@ -33,16 +33,16 @@ def plot_error(nn: NeuralNetwork, title: str, filename: str):
 def plot_stats_combined(stats_combined, title, filename):
     """
     Function plots the chart of the error of the Neural Network at the end of
-    each learning epoch. (4 combined)
+    each learning epoch. (6 combined)
 
     param stats_combined: neural network instance
     type nn: NeuralNetwork
 
     param filename: path where plot will be saved
-    type filename: str 
+    type filename: str
     """
     plt.style.use('dark_background')
-    fig, _ = plt.subplots(2, 2)
+    fig, _ = plt.subplots(3, 2)
     fig.set_size_inches(12, 8)
     fig.set_dpi(100)
     fig.suptitle(title)
@@ -71,7 +71,7 @@ def main():
     #
     # Hiperparameters (Red Wine)
     #
-    learning_rates = [0.0001, 0.0005, 0.006, 0.0105]
+    learning_rates = [0.0001, 0.0005, 0.006, 0.0105, 0.1, 0.5]
     hidden_layer = 11
     epochs = 800
     minibatch_size = 8
