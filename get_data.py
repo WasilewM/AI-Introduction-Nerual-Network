@@ -3,7 +3,7 @@ import pandas as pd
 
 def get_60(df, _60=0.6):
     """
-    Splits datasert given in df parameter into to subsets - training and test
+    Splits dataset given in df parameter into to subsets - training and test
         datasets. Training dataset consists o 60% of tha data contained in df.
 
     param df: dataset
